@@ -52,9 +52,25 @@
     {
       "name": "File",
       "alt_names": [ "Files" ],
-      "enabled": true,
 
       "actions": [
+        {
+          "name": "Start",
+          "hotwords": [ "start", "go"],
+          "action": "/app/start",
+          "method": "GET",
+          // TODO: how do we indicate success/failure at the HTTP level here?
+          "timeout": 1500,  // 1.5s
+          "success": {
+            "codes": [ "200" ],
+            "default": "got it!",
+          },
+          "failure": {
+            "codes": [ "*" ], // anything not a 200
+            "default": "I'm sorry, Dave, I'm afraid I can't do that",
+          }
+        },
+
         {
           "name": "Book A Local Frobulator",
           "short_name": "Book",
@@ -64,7 +80,13 @@
           "method": "POST",
           "enctype": "multipart/form-data",
           "params": {
-            "location": "location",
+            "location": {
+              // We extend the params mapping to allow descriptive phrases for
+              // each param. This is necessary for assistant-driven form
+              // filling.
+              "field": "location",
+              "labels": [ "near me", "around me" ]
+            }
           },
 
           // Send the `onaction` event inside documents (default `true`)
@@ -73,7 +95,7 @@
           // Is menu item enabled? (default `true`)
           "enabled": true,
           // Should this action be surfaced via right-click? (default `false`)
-          "contenxt-menu": true,
+          "context-menu": true,
           // Surface in jumplist/long-press? (default `false`)
           "shortcut": true,
 

@@ -39,7 +39,7 @@ TODO
 TODO
 ```
 
-### External Assistant Invocation
+### External Assistants
 
 TODO
 
