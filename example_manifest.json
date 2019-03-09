@@ -1,0 +1,109 @@
+{
+  // Bog-stock Web App Manifest for a PWA
+  "short_name": "Frobulator",
+  "name": "Frobulator Deluxe",
+  "icons": [
+    {
+      "src": "/app/images/icons-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/app/images/icons-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/app/?source=pwa",
+  "background_color": "#3367D6",
+  "display": "standalone",
+  "scope": "/app/",
+  "theme_color": "#3367D6",
+
+  // Web Share Target Level 2 handler
+  "share_target": {
+    "action": "/app/frobulate",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "images",
+          "accept": ["*/*"]
+        },
+      ]
+    }
+  },
+
+  // TODO(slightlyoff): "actions" is very close to Share Target's "action",
+  // which we re-use, which is likely to lead to confusion. Considered
+  // alternatives include:
+  //  "intents"
+  //  "handlers"
+  //  "commands"
+  //  "invocations"
+  //  "hooks"
+  //  "dispatchers"
+  //  "responders"
+  "actions": [
+    {
+      "name": "File",
+      "alt_names": [ "Files" ],
+      "enabled": true,
+
+      "actions": [
+        {
+          "name": "Book A Local Frobulator",
+          "short_name": "Book",
+          "hotwords": [ "book", "reserve"],
+
+          "action": "/app/book",
+          "method": "POST",
+          "enctype": "multipart/form-data",
+          "params": {
+            "location": "location",
+          },
+
+          // Send the `onaction` event inside documents (default `true`)
+          // before navigating with form data
+          "dispatch_event": true,
+          // Is menu item enabled? (default `true`)
+          "enabled": true,
+          // Should this action be surfaced via right-click? (default `false`)
+          "contenxt-menu": true,
+          // Surface in jumplist/long-press? (default `false`)
+          "shortcut": true,
+
+          // Icons for a jumplist or long-press UI
+          "icons": [
+            {
+              "src": "/app/images/book-192.png",
+              "type": "image/png",
+              "sizes": "192x192"
+            },
+          ],
+
+          "keys": {
+            "default": {
+              "code": "B",
+              // Any of the EventModifierInit values are accepted:
+              //    https://www.w3.org/TR/uievents/#dictdef-eventmodifierinit
+              "ctrlKey": true,
+              "shiftKey": true, 
+            },
+            "macos": { // Command-B on Macs
+              "code": "B",
+              "metaKey": true,
+            }
+          }
+        },
+      ]
+    },
+    {
+
+    },
+  ]
+}
