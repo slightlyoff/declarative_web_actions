@@ -8,6 +8,11 @@
 
 ## What’s all this then?
 
+Declarative Web Actions (DWAs) are an extension to [Web App Manifests](https://developer.mozilla.org/en-US/docs/Web/Manifest) that support in-app actions (e.g., menu and keyboard-driven commands) as well as external assistant-driven interactions with services.
+
+DWAs build on the HTTP-centric [pattern we contributed to the Web Share Target](https://wicg.github.io/web-share-target/level-2/), adding a document-side set of events and interfaces to handle actions in-app.
+
+These extensions seek to enable developers to surface more understanding about what's possible within applications to runtimes and crawlers. Deeper integration with assistive and a11y technology may result from broad DWA deployment.
 
 ### Goals
 
@@ -61,11 +66,15 @@ TODO
 
 ## Open Design Questions
 
+  * There needs to be API to enable/disable DWAs...what about maniuplating the hierarchy? How dynamic should that be in-document?
+  * The evented side of this design is too complex because we don't have an `onbeforenavigate` event yet. Maybe we should just add one here?
+  * Should params be able to be specified as [Schema.org types](https://schema.org/docs/full.html)?
   * Should the `actions` collection be a flat list? Windows uses a [`GroupName`](https://docs.microsoft.com/en-us/uwp/api/windows.ui.startscreen.jumplistitem) concept to avoid needing to manually re-create a hierarchy. Perhaps this is better?
   * It's unclear how to model ongoing conversational call/response in this API across in-document and across-document models (SPA vs. MPA). At the SW/HTTP level, it's pretty straightforward to have assistant systems send along some sort of an "I expect JSON in response" thing, but in the context of documents the ongoing conversation flow isn't as clear.
   * Keyboard shortcut handling is hard disambiguate. Do we need to support `key` and `location` in addition to `code`? Have shied away from creating a new micro-syntax that needs it's own parsing in lieu of keyboard event constructor options, but that may not be enough?
   * How do we handle reserved or overwritten kbd shortcuts from the OS?
   * Should there be a system for registering [global keyboard handlers](https://developer.chrome.com/apps/commands)?
+  * The use of HTTP status codes for success/response requires us to double-up the surface area to provide something on the evented side of things.
 
 ## Considered alternatives
 
@@ -87,6 +96,7 @@ References:
   * [Apple kbd interaction gidelines](https://developer.apple.com/design/human-interface-guidelines/macos/user-interaction/keyboard/)
   * [Apple Keyboard and Menu APIs](https://developer.apple.com/documentation/uikit/keyboard_and_menus?language=objc)
   * [Google Assistant Actions](https://developers.google.com/actions/extending-the-assistant)
+  * [Schema.org types](https://schema.org/docs/full.html)
 
 
 

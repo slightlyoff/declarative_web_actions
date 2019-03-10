@@ -54,9 +54,11 @@
       "alt_names": [ "Files" ],
 
       "actions": [
+        // The simplest action that can work. 
+        // Assumes no params, just calls a service
         {
           "name": "Start",
-          "hotwords": [ "start", "go"],
+          "hotwords": [ "frobulate" "start", "go"],
           "action": "/app/start",
           "method": "GET",
           // TODO: how do we indicate success/failure at the HTTP level here?
@@ -71,6 +73,8 @@
           }
         },
 
+        // A more complex action with a keyboard shortcut, a jumplist, and
+        // arguments
         {
           "name": "Book A Local Frobulator",
           "short_name": "Book",
@@ -85,9 +89,22 @@
               // each param. This is necessary for assistant-driven form
               // filling.
               "field": "location",
-              "labels": [ "near me", "around me" ]
-            }
+              "expect": [ "near me", "around me" ],
+            },
+            "time": {
+              "field": "time",
+              // TODO: does this make sense?
+              "schema": "https://schema.org/Time",
+            },
+            "time_separator": {
+              // Used to construct voice query, not submitted (no `field`)
+              "expect": [ "at", "around" ]
+            },
           },
+          "expect": [ 
+            "${params.location} ${time_separator} ${params.time}",
+            // ...
+          ],
 
           // Send the `onaction` event inside documents (default `true`)
           // before navigating with form data
@@ -109,23 +126,20 @@
           ],
 
           "keys": {
-            "default": {
+            "default": { // Shift-Ctrl-B
               "code": "B",
               // Any of the EventModifierInit values are accepted:
               //    https://www.w3.org/TR/uievents/#dictdef-eventmodifierinit
               "ctrlKey": true,
               "shiftKey": true, 
             },
-            "macos": { // Command-B on Macs
+            "macos": {   // Command-B on Macs
               "code": "B",
               "metaKey": true,
             }
           }
         },
       ]
-    },
-    {
-
     },
   ]
 }
