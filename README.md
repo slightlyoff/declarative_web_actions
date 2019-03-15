@@ -38,26 +38,183 @@ It is not a goal to:
 
 ### PWA Menus &amp; Keyboard Accelerators
 
-TODO
+Desktop PWAs are currently missing a way to provide system-integrated menus and keyboard accelerators. To improve this situation, we propose extensions to the [Web App Manifest](https://developers.google.com/web/fundamentals/web-app-manifest/) that all PWAs much include. As a refresher, web pages that wish to be installed must like to a manifest in the `<head>` of their documents, like this:
+
+```html
+<link rel="manifest" href="/manifest.json">
+```
+
+Manifests must include a few properties to be treated as installable, e.g.:
 
 ```json
-TODO
+{
+  "name": "Frobulator Deluxe",
+  "short_name": "Frobulator",
+  "icons": [
+     {
+      "src": "/app/images/icons-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/app/?source=pwa",
+  "background_color": "#3367D6",
+  "display": "standalone",
+  "scope": "/app/",
+  "theme_color": "#3367D6",
+  ...
+}
 ```
+
+To implement menuing, we add an `actions` section:
+
+```json
+{
+  "name": "Frobulator Deluxe",
+  "short_name": "Frobulator",
+
+  ...
+
+  "actions": [
+    {
+      "name": "Start",
+      "action": "/app/start",
+    }
+  ],
+}
+```
+
+Each item, by default, invokes a navigation (HTTP GET) to the listed location in the `action` field. This may not be desireable, and so an event is dispatched within open documents in the PWA whose default behavior can be prevented:
+
+```js
+window.addEventListener("action", (e) => {
+  // Handle the interaction locally, do not navigate:
+  e.preventDefault();
+  // ...
+  console.log(e.name);
+  console.log(e.action);
+  console.log(e.formData); // empty
+});
+```
+
+Applications frequently want to map actions to user actions in a more generic way. Keyboard accelerators and menu options are mutliple routes for accessing the same functions, however they admit some per-platform diversity. Here's a sketch for how we might enable the same action to be accessible in both places.
+
+
+```json
+{
+  "name": "Frobulator Deluxe",
+  "short_name": "Frobulator",
+
+  ...
+
+  "actions": [
+    {
+      "name": "Start",
+      "action": "/app/start",
+      "method": "GET",
+
+      "keys": {
+        "default": { // Shift-Ctrl-S
+          "code": "S",
+          "ctrlKey": true,
+          "shiftKey": true, 
+        },
+        "macos": {   // Command-S on MacOS
+          "code": "S",
+          "metaKey": true,
+        }
+      }
+    }
+  ],
+}
+```
+
+> TODO(slightlyoff): describe HTTP response code semantics for success failure
+
+> TODO(slightlyoff): outline a DOM API for enabling/disabling items as well as an `id` concept. 
+
+> OPEN ISSUE: the reification of these canned menus into DOM `<menu>`s seems, in some ways, obvious. Should they simply be exposed as DOM hanging off of `<head>` or `document.documentElement` in some way?
+
+> OPEN ISSUE: global keyboard handling (OS-registered shortcuts that cause an app to be launched even if it's not already running) are not described here as their priority is unclear. Need feedback to understand the importance.
 
 ### External Assistants
 
-TODO
+Most of today's voice-driven assistants are, conceptually, form-filler-outers. They are invoked by hotwords and lean on canned sentence structures to fill in the gaps when the required variables aren't provided.
+
+Supporting this style of operation as well as more complex, free-form interaction is a goal of this proposal. To do this, we extend the HTTP-equivalent actions (in the style of Web Share Target) to include `POST` operations and build in type-awareness based on [Schema.org's vocabulary of extended type hints](https://schema.org/docs/full.html). There are many open questions as to how these will interoperate.
 
 ```json
-TODO
+// A more complex action with a keyboard shortcut, a jumplist, and
+// arguments
+{
+  "name": "Book A Local Frobulator",
+  "short_name": "Book",
+  "hotwords": [ "book", "reserve"],
+
+  "action": "/app/book",
+  "method": "POST",
+  "enctype": "multipart/form-data",
+  "params": {
+    "location": {
+      // We extend the params mapping to allow descriptive phrases for
+      // each param. This is necessary for assistant-driven form
+      // filling.
+      "field": "location",
+      "expect": [ "near me", "around me" ],
+    },
+    "time": {
+      "field": "time",
+      // TODO: does this make sense?
+      "schema": "https://schema.org/Time",
+    },
+    "time_separator": {
+      // Used to construct voice query, not submitted (no `field`)
+      "expect": [ "at", "around" ]
+    },
+  },
+  "expect": [ 
+    "${params.location} ${time_separator} ${params.time}",
+    // ...
+  ],
+
+},
 ```
 
-### Long-Press/Jumplist Menus
+### Long-Press/Jumplist/Context Menus
 
-TODO
+We can build on the previous example to outline how some actions might also be surfaced outsie the application context, e.g. in OS-level "jumplists" or "long-press" menus that invoke the service even if it isn't currently running.
+
+> TODO(slightlyoff): reconcile this sort of invocation with assistant action filling. E.g., if an assistant would normally `POST` a full form's worth of data, but a jumplist or hotkey invocation won't, how do we represent these alternative paths? Separate actions with the same name? An `optional` flag on `params`?
 
 ```js
-TODO
+// A more complex action with a keyboard shortcut, a jumplist, and
+// arguments
+{
+  "name": "Book A Local Frobulator",
+  "short_name": "Book",
+
+  // TODO: does this action `GET` with empty query params when invoked by a
+  // kbd shortcut or hotlist/shortcut system?
+  "action": "/app/book",
+  "method": "POST",
+
+  // ...
+
+  "context-menu": true,
+  // Surface in jumplist/long-press? (default `false`)
+  "shortcut": true,
+
+  // Icons for a jumplist or long-press UI
+  "icons": [
+    {
+      "src": "/app/images/book-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+  ],
+
+  // ...
+},
 ```
 
 ## Detailed Design Discussion
