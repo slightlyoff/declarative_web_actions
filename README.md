@@ -46,7 +46,7 @@ Desktop PWAs are currently missing a way to provide system-integrated menus and 
 
 Manifests must include a few properties to be treated as installable, e.g.:
 
-```json
+```json5
 {
   "name": "Frobulator Deluxe",
   "short_name": "Frobulator",
@@ -68,7 +68,7 @@ Manifests must include a few properties to be treated as installable, e.g.:
 
 To implement menuing, we add an `actions` section:
 
-```json
+```json5
 {
   "name": "Frobulator Deluxe",
   "short_name": "Frobulator",
@@ -100,7 +100,7 @@ window.addEventListener("action", (e) => {
 Applications frequently want to map actions to user actions in a more generic way. Keyboard accelerators and menu options are mutliple routes for accessing the same functions, however they admit some per-platform diversity. Here's a sketch for how we might enable the same action to be accessible in both places.
 
 
-```json
+```json5
 {
   "name": "Frobulator Deluxe",
   "short_name": "Frobulator",
@@ -143,7 +143,7 @@ Most of today's voice-driven assistants are, conceptually, form-filler-outers. T
 
 Supporting this style of operation as well as more complex, free-form interaction is a goal of this proposal. To do this, we extend the HTTP-equivalent actions (in the style of Web Share Target) to include `POST` operations and build in type-awareness based on [Schema.org's vocabulary of extended type hints](https://schema.org/docs/full.html). There are many open questions as to how these will interoperate.
 
-```json
+```json5
 // A more complex action with a keyboard shortcut, a jumplist, and
 // arguments
 {
@@ -186,7 +186,7 @@ We can build on the previous example to outline how some actions might also be s
 
 > TODO(slightlyoff): reconcile this sort of invocation with assistant action filling. E.g., if an assistant would normally `POST` a full form's worth of data, but a jumplist or hotkey invocation won't, how do we represent these alternative paths? Separate actions with the same name? An `optional` flag on `params`?
 
-```js
+```json5
 // A more complex action with a keyboard shortcut, a jumplist, and
 // arguments
 {
